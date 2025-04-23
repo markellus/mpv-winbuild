@@ -1,17 +1,17 @@
-From 6a9032769c1b4c6c575d87cbce60c0ed10f960dd Mon Sep 17 00:00:00 2001
-From: zhongfly <11155705+zhongfly@users.noreply.github.com>
-Date: Sun, 10 Mar 2024 10:04:23 +0800
-Subject: [PATCH] packages: compile lgpl libmpv
+From e43a4c63f9ec96dd2e43947bf528f1b9229af519 Mon Sep 17 00:00:00 2001
+From: Marcel Bulla <mbulla@eyefactive.com>
+Date: Wed, 23 Apr 2025 17:23:18 +0200
+Subject: [PATCH] compile-lgpl-libmpv
 
 ---
- cmake/packages_check.cmake |  6 +-----
- packages/ffmpeg.cmake      | 23 -----------------------
+ cmake/packages_check.cmake | 18 +++++++-----------
+ packages/ffmpeg.cmake      | 27 ---------------------------
  packages/libarchive.cmake  |  3 +--
- packages/mpv.cmake         | 28 ++++++++--------------------
- 4 files changed, 10 insertions(+), 50 deletions(-)
+ packages/mpv.cmake         | 36 ++++++++++++------------------------
+ 4 files changed, 20 insertions(+), 64 deletions(-)
 
 diff --git a/cmake/packages_check.cmake b/cmake/packages_check.cmake
-index e303e10dc..6c2eeb399 100644
+index e303e10..0eb26a0 100644
 --- a/cmake/packages_check.cmake
 +++ b/cmake/packages_check.cmake
 @@ -7,11 +7,7 @@ if(COMPILER_TOOLCHAIN STREQUAL "gcc")
@@ -27,11 +27,47 @@ index e303e10dc..6c2eeb399 100644
  elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
      set(rust_target "gnullvm")
      set(vapoursynth_pkgconfig_libs "-lVapourSynth -Wl,-delayload=VapourSynth.dll")
+@@ -37,29 +33,29 @@ if(TARGET_CPU STREQUAL "x86_64")
+     set(openssl_target "mingw64")
+     set(openssl_ec_opt "enable-ec_nistp_64_gcc_128")
+     set(libvpx_target "x86_64-win64-gcc")
+-    set(mpv_gl "-Dgl=enabled -Degl-angle=enabled")
++    set(mpv_gl "-Dgl=enabled -Degl-angle=disabled")
+     set(xxhash_dispatch "-DDISPATCH=ON")
+     set(xxhash_cflags "-DXXH_X86DISPATCH_ALLOW_AVX=1")
+     set(nvcodec_headers "nvcodec-headers")
+     set(ffmpeg_cuda "--enable-cuda-llvm --enable-cuvid --enable-nvdec --enable-nvenc")
+     set(ffmpeg_uavs3d "uavs3d")
+-    set(ffmpeg_uavs3d_cmd "--enable-libuavs3d")
++    set(ffmpeg_uavs3d_cmd "--disable-libuavs3d")
+     set(ffmpeg_davs2 "davs2")
+-    set(ffmpeg_davs2_cmd "--enable-libdavs2")
++    set(ffmpeg_davs2_cmd "--disable-libdavs2")
+ elseif(TARGET_CPU STREQUAL "i686")
+     set(dlltool_image "i386")
+     set(vulkan_asm "-DUSE_MASM=OFF")
+     set(openssl_target "mingw")
+     set(libvpx_target "x86-win32-gcc")
+-    set(mpv_gl "-Dgl=enabled -Degl-angle=enabled")
++    set(mpv_gl "-Dgl=enabled -Degl-angle=disabled")
+     set(xxhash_dispatch "-DDISPATCH=ON")
+     set(xxhash_cflags "-DXXH_X86DISPATCH_ALLOW_AVX=1")
+     set(nvcodec_headers "nvcodec-headers")
+     set(ffmpeg_cuda "--enable-cuda-llvm --enable-cuvid --enable-nvdec --enable-nvenc")
+     set(ffmpeg_uavs3d "uavs3d")
+-    set(ffmpeg_uavs3d_cmd "--enable-libuavs3d")
++    set(ffmpeg_uavs3d_cmd "--disable-libuavs3d")
+     set(ffmpeg_davs2 "davs2")
+-    set(ffmpeg_davs2_cmd "--enable-libdavs2")
++    set(ffmpeg_davs2_cmd "--disable-libdavs2")
+ elseif(TARGET_CPU STREQUAL "aarch64")
+     set(dlltool_image "arm64")
+     set(vulkan_asm "-DUSE_GAS=ON")
 diff --git a/packages/ffmpeg.cmake b/packages/ffmpeg.cmake
-index 49a0f6e95..e06b281d2 100644
+index 49a0f6e..a1e5114 100644
 --- a/packages/ffmpeg.cmake
 +++ b/packages/ffmpeg.cmake
-@@ -1,18 +1,13 @@
+@@ -1,18 +1,12 @@
  ExternalProject_Add(ffmpeg
      DEPENDS
          amf-headers
@@ -44,13 +80,13 @@ index 49a0f6e95..e06b281d2 100644
 -        libssh
 -        libsrt
          libass
-         libbluray
+-        libbluray
 -        libdvdnav
 -        libdvdread
          libmodplug
          libpng
          libsoxr
-@@ -26,24 +21,18 @@ ExternalProject_Add(ffmpeg
+@@ -26,24 +20,17 @@ ExternalProject_Add(ffmpeg
          opus
          speex
          vorbis
@@ -69,13 +105,13 @@ index 49a0f6e95..e06b281d2 100644
          svtav1
          dav1d
          vapoursynth
-         ${ffmpeg_uavs3d}
+-        ${ffmpeg_uavs3d}
 -        ${ffmpeg_davs2}
 -        rubberband
          libva
          openal-soft
      GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
-@@ -59,15 +48,11 @@ ExternalProject_Add(ffmpeg
+@@ -59,15 +46,10 @@ ExternalProject_Add(ffmpeg
          --pkg-config-flags=--static
          --enable-cross-compile
          --enable-runtime-cpudetect
@@ -85,13 +121,13 @@ index 49a0f6e95..e06b281d2 100644
 -        --enable-avisynth
          --enable-vapoursynth
          --enable-libass
-         --enable-libbluray
+-        --enable-libbluray
 -        --enable-libdvdnav
 -        --enable-libdvdread
          --enable-libfreetype
          --enable-libfribidi
          --enable-libfontconfig
-@@ -81,28 +66,20 @@ ExternalProject_Add(ffmpeg
+@@ -81,28 +63,19 @@ ExternalProject_Add(ffmpeg
          --enable-libspeex
          --enable-libvorbis
          --enable-libbs2b
@@ -104,7 +140,7 @@ index 49a0f6e95..e06b281d2 100644
          --enable-libsvtav1
          --enable-libdav1d
 -        ${ffmpeg_davs2_cmd}
-         ${ffmpeg_uavs3d_cmd}
+-        ${ffmpeg_uavs3d_cmd}
 -        --enable-libxvid
          --enable-libzimg
          --enable-openssl
@@ -121,7 +157,7 @@ index 49a0f6e95..e06b281d2 100644
          ${ffmpeg_cuda}
          --enable-amf
 diff --git a/packages/libarchive.cmake b/packages/libarchive.cmake
-index 4773faef1..2e9027aea 100644
+index 0d7fa80..2b1ed2c 100644
 --- a/packages/libarchive.cmake
 +++ b/packages/libarchive.cmake
 @@ -2,7 +2,6 @@ ExternalProject_Add(libarchive
@@ -142,7 +178,7 @@ index 4773faef1..2e9027aea 100644
          -DENABLE_CPIO=OFF
          -DENABLE_CNG=OFF
 diff --git a/packages/mpv.cmake b/packages/mpv.cmake
-index b30e6e33f..af4c944b6 100644
+index 874ee95..92ff1b7 100644
 --- a/packages/mpv.cmake
 +++ b/packages/mpv.cmake
 @@ -6,15 +6,11 @@ ExternalProject_Add(mpv
@@ -174,13 +210,17 @@ index b30e6e33f..af4c944b6 100644
 +        -Dcplayer=false
          -Dlibmpv=true
 -        -Dpdf-build=enabled
+-        -Dlua=enabled
+-        -Djavascript=enabled
+-        -Dsdl2=enabled
 +        -Dpdf-build=disabled
-         -Dlua=enabled
-         -Djavascript=enabled
-         -Dsdl2=enabled
++        -Dlua=disabled
++        -Djavascript=disabled
++        -Dsdl2=disabled
          -Dlibarchive=enabled
-         -Dlibbluray=enabled
+-        -Dlibbluray=enabled
 -        -Ddvdnav=enabled
++        -Dlibbluray=disabled
 +        -Ddvdnav=disabled
          -Duchardet=enabled
 -        -Drubberband=enabled
@@ -202,7 +242,7 @@ index b30e6e33f..af4c944b6 100644
 -    ${mpv_copy_debug}
      COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libmpv-2.dll          ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/libmpv-2.dll
      COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libmpv.dll.a          ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/libmpv.dll.a
-     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv/client.h       ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/include/mpv/client.h
+     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/include/mpv/client.h       ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/include/mpv/client.h
 @@ -91,14 +84,9 @@ mv $2 $2-git-\${GIT}")
  ExternalProject_Add_Step(mpv copy-package-dir
      DEPENDEES copy-binary
@@ -221,4 +261,5 @@ index b30e6e33f..af4c944b6 100644
      LOG 1
  )
 -- 
-2.46.0
+2.25.1.windows.1
+
